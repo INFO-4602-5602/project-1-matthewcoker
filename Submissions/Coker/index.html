@@ -1,85 +1,205 @@
 <html>
 <head>
-     <title>Project 0</title>
-     <style type="text/css" href="project0.css"></style>
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-     <!--Put your D3 import statement between these two lines-->
-     <script src="https://d3js.org/d3.v4.min.js"></script>
-     <!--Put your D3 import statement between these two lines-->
+    <title>Project 0</title>
+    <style type="text/css" href="project0.css"></style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!--Put your D3 import statement between these two lines-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <!--Put your D3 import statement between these two lines-->
 </head>
 
 <body>
-     <div id="partOne">
-          <h1>Part One: </h1>
-          Part one completed.
-     </div>
+    <div id="partOne">
+         <h1>Part One: </h1>
+    </div>
 
-     <div id="partTwo">
-          <h1>Part Two: </h1>
-          <div id="barchart">
-          </div>
-     </div>
+    <div id="partTwo">
+         <h1>Part Two: </h1>
+         <div id="barchart">
+         </div>
+    </div>
 
-     <div id="partThree">
-          <h1>Part Three &amp; Four: </h1>
-          <div id="scatterplot">
-               <p id="scatterLabel"></p>
-          </div>
-     </div>
+    <div id="partThree">
+         <h1>Part Three &amp; Four: </h1>
+         <div id="scatterplot">
+              <p id="scatterLabel"></p>
+         </div>
+    </div>
 
-     <div id="partFive">
-          <h1>Part Five: </h1>
-          <div id="scatterplotSet">
-          </div>
-     </div>
+    <div id="partFive">
+         <h1>Part Five: </h1>
+         <div id="scatterplotSet">
+         </div>
+    </div>
 
-     <script type="text/javascript">
-     // Put your part one code here ***********************
-     d3.csv("data/anscombe_I.csv",function(d){
-          console.log(d)
-          checkDataset(d)
-     });
-     d3.csv("data/anscombe_II.csv",function(d){
-          console.log(d)
-          checkDataset(d)
-     });
-     d3.csv("data/anscombe_III.csv",function(d){
-          console.log(d)
-          checkDataset(d)
-     });
-     d3.csv("data/anscombe_IV.csv",function(d){
-          console.log(d)
-          checkDataset(d)
-     });
+    <script type="text/javascript">
+    // Put your part one code here ***********************
+    d3.csv("data/anscombe_I.csv",function(d){
+         checkDataset(d)
+    });
+    d3.csv("data/anscombe_II.csv",function(d){
+         checkDataset(d)
+    });
+    d3.csv("data/anscombe_III.csv",function(d){
+         checkDataset(d)
+    });
+    d3.csv("data/anscombe_IV.csv",function(d){
+         checkDataset(d)
+    });
 
-     // Leave this to test your data uploading. All data uploading should be above this line
-     function checkDataset(dataset) {
-          if (dataset.length == 11)
-          $("#partOne").append("<p>Data loaded correctly!</p>");
-          else
-          $("#partOne").append("<p>Data loaded incorrectly. Try using the debugger to help you find the bug!</p>");
-     }
+    // Leave this to test your data uploading. All data uploading should be above this line
+    function checkDataset(dataset) {
+         if (dataset.length == 11)
+         $("#partOne").append("<p>Data loaded correctly!</p>");
+         else
+         $("#partOne").append("<p>Data loaded incorrectly. Try using the debugger to help you find the bug!</p>");
+    }
 
-     // Put your part two code here ***********************
-     var vals = ['x','y']
-     var xVal = vals[0]
-     var yVal = vals[1]
-     d3.csv("data/anscombe_I.csv",function(error,data){
-          if(error) throw error;
-          //Scale the range to the data
-          x.domain(d3.extent(data,function(d){return d[xVal];}));
-          y.domain([0,d3.max(data,function(d){return d[yVal];})]);
+    // Put your part two code here ***********************
+    var vals = ['x','y']; // List of data attributes
+    var xVal = vals[0]; // Value to plot on x-axis
+    var yVal = vals[1]; // Value to plot on y-axis
 
-     })
-     // Put your part three & four code here ***********************
 
-     // Put your part five code here ***********************
+    // set the dimensions and margins of the graph
+    var margin = {top:20, right:20, bottom:30, left:50}
+    var width = 960 - margin.left - margin.right;
+    var height = 500 - margin.top - margin.bottom;
 
-     </script>
+    // set the ranges
+    var x = d3.scaleLinear().range([0,width/2]);
+    var y = d3.scaleLinear().range([height/2,0]);
+
+    // append the svg obgect to the body of the page
+    // appends a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("#barchart").append("svg")
+         .attr("width", width/2 + margin.left + margin.right)
+         .attr("height", height/2 + margin.top + margin.bottom)
+         .append("g")
+         .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+
+    // Get the data
+    d3.csv("data/anscombe_II.csv",function(error,data){
+         if (error) throw error;
+         // Scale the range of the data
+         x.domain([0, d3.max(data, function(d) {return +d[xVal];})]);
+         y.domain([0, d3.max(data, function(d) {return +d[yVal];})]);
+         // Add the scatterplot points
+         svg.selectAll("circle")
+              .data(data)
+              .enter()
+              .append("circle")
+              .attr("r",5)
+              .attr("cx",function(d){return x(d[xVal]);})
+              .attr("cy",function(d){return y(d[yVal]);})
+              .attr("fill","blue")
+              .attr("r",0)
+              .transition()
+              .ease(d3.easeBounce)
+              .duration(400)
+              .attr("r",5)
+              //.attr("r",function(d){return d["TFIDF"];});
+
+         // Add the X Axis
+         svg.append("g")
+              .attr("transform","translate(0, " + height/2 + ")")
+              .call(d3.axisBottom(x));
+
+         // Add the Y Axis
+         svg.append("g")
+              .call(d3.axisLeft(y));
+
+         // Add text labels
+         var xLabel = svg.append("text")
+                        .attr("class","label")
+                        .text(xVal)
+                        .attr("x",width - 20)
+                        .attr("y",height - 60);
+         //Had to rotate the text to appear vertical
+         var xLabel = svg.append("text")
+                        .attr("class","label")
+                        .text(yVal)
+                        .attr("y", -10)
+                        .attr("transform","rotate(90)")
+                        .style("text-anchor","start");
+
+    });
+    // Put your part three & four code here ***********************
+    
+    var valueLine = d3.line()
+        .x(function(d) { return x(d.x); })
+        .y(function(d) { return y(d.y); });
+
+    var svg2 = d3.select("#scatterplot").append("svg")
+         .attr("width", width/2 + margin.left + margin.right)
+         .attr("height", height/2 + margin.top + margin.bottom)
+         .append("g")
+         .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+
+    d3.csv("data/anscombe_II.csv",function(error,data){
+         if (error) throw error;
+         // Scale the range of the data
+         x.domain([0, d3.max(data, function(d) {return +d[xVal];})]);
+         y.domain([0, d3.max(data, function(d) {return +d[yVal];})]);
+
+         data.sort(function(i,j){return i.x - j.x})
+
+         svg2.append("path")
+            .data([data])
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 1)
+            .attr("d", valueLine);
+
+
+         // Add the scatterplot points
+         svg2.selectAll("circle")
+              .data(data)
+              .enter()
+              .append("circle")
+              .attr("r",5)
+              .attr("cx",function(d){return x(d[xVal]);})
+              .attr("cy",function(d){return y(d[yVal]);})
+              .attr("fill","blue")
+              .attr("r",0)
+              .transition()
+              .ease(d3.easeBounce)
+              .duration(400)
+              .attr("r",5)
+              //.attr("r",function(d){return d["TFIDF"];});
+
+         // Add the X Axis
+         svg2.append("g")
+              .attr("transform","translate(0, " + height/2 + ")")
+              .call(d3.axisBottom(x));
+
+         // Add the Y Axis
+         svg2.append("g")
+              .call(d3.axisLeft(y));
+
+         // Add text labels
+         var xLabel = svg2.append("text")
+                        .attr("class","label")
+                        .text(xVal)
+                        .attr("x",width - 20)
+                        .attr("y",height - 60);
+         //Had to rotate the text to appear vertical
+         var xLabel = svg2.append("text")
+                        .attr("class","label")
+                        .text(yVal)
+                        .attr("y", -10)
+                        .attr("transform","rotate(90)")
+                        .style("text-anchor","start");
+
+    });
+    // Put your part five code here ***********************
+
+    </script>
 </body>
 
 
 </html>
-
-
- 
